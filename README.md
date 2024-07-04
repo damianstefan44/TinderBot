@@ -1,1 +1,1 @@
-Bot do automatycznego swipowania i data-scrapingu danych z aplikacji Tinder. Posłużył do zbierania danych, które później zostały wykorzystane w mojej pracy magisterskiej: "Automating and enhancing of dating applications using machine learning"
+Bot do automatycznego swipowania i data-scrapingu danych z aplikacji Tinder. Posłużył do zbierania danych, które później zostały wykorzystane w mojej pracy magisterskiej pt. "Automating and enhancing of dating applications using machine learning"
