@@ -1,42 +1,34 @@
 import urllib
 from datetime import datetime
 import json
-from os import path
 import unicodedata
 import re
-
-
 from selenium import webdriver
 from time import sleep
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-import random
-import requests
-from bs4 import BeautifulSoup
-from selenium.common.exceptions import StaleElementReferenceException
-import time
-
 from config import email, password, api_key
 
-
 url = 'https://tinder.com'
+
 
 def get_current_timestamp():
     return str(int(datetime.now().timestamp()))
 
+
 def remove_emojis(data):
     emoji = re.compile("["
-        u"\U00002700-\U000027BF"   # Dingbats
-        u"\U0001F600-\U0001F64F"   # Emoticons
-        u"\U00002600-\U000026FF"   # Miscellaneous Symbols
-        u"\U0001F300-\U0001F5FF"   # Miscellaneous Symbols And Pictographs
-        u"\U0001F900-\U0001F9FF"   # Supplemental Symbols and Pictographs
-        u"\U0001FA70-\U0001FAFF"   # Symbols and Pictographs Extended-A
-        u"\U0001F680-\U0001F6FF"   # Transport and Map Symbols
-        u"[\U00010000-\U0010ffff]" # Rectangular signs
-                      "]+", re.UNICODE)
+                       u"\U00002700-\U000027BF"  # Dingbats
+                       u"\U0001F600-\U0001F64F"  # Emoticons
+                       u"\U00002600-\U000026FF"  # Miscellaneous Symbols
+                       u"\U0001F300-\U0001F5FF"  # Miscellaneous Symbols And Pictographs
+                       u"\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
+                       u"\U0001FA70-\U0001FAFF"  # Symbols and Pictographs Extended-A
+                       u"\U0001F680-\U0001F6FF"  # Transport and Map Symbols
+                       u"[\U00010000-\U0010ffff]"  # Rectangular signs
+                       "]+", re.UNICODE)
     return re.sub(emoji, '', data)
 
 
@@ -66,6 +58,7 @@ class TinderBot():
         except:
             print('nothing to accept')
         sleep(5)
+
     def close_cookies(self):
 
         try:
@@ -100,7 +93,6 @@ class TinderBot():
         except:
             print('no notification popup')
 
-
         try:
             enable_button = WebDriverWait(self.driver, 3).until(
                 EC.presence_of_element_located((By.XPATH, '//div[contains(text(), "Korzystaj")]')))
@@ -115,7 +107,7 @@ class TinderBot():
         except:
             print('no popup enable')
 
-    def allow_notification(self, decision:bool):
+    def allow_notification(self, decision: bool):
         if decision:
             try:
                 notifications_button = self.driver.find_element('xpath',
@@ -138,17 +130,13 @@ class TinderBot():
         sleep(2)
         self.click_login()
         self.facebook_login()
-        #sleep(180)
         sleep(6)
-
-
 
     def facebook_login(self):
         # find and click FB login button
         login_with_facebook = WebDriverWait(self.driver, 3).until(
             EC.presence_of_element_located((By.XPATH, '//div[contains(text(), "Facebook")]')))
         login_with_facebook.click()
-
         # save references to main and FB windows
         sleep(2)
         base_window = self.driver.window_handles[0]
@@ -166,10 +154,7 @@ class TinderBot():
         login_button.click()
         self.driver.switch_to.window(base_window)
         sleep(10)
-
         self.accept_location()
-        #self.accept_location_again()
-        #self.allow_notification(False)
 
     def right_swipe(self):
         doc = self.driver.find_element('xpath', '//*[@id="Tinder"]/body')
@@ -177,29 +162,20 @@ class TinderBot():
 
     def left_swipe(self):
         doc = self.driver.find_element('xpath', '//*[@id="Tinder"]/body')
-
         doc.send_keys(Keys.ARROW_UP)
-
-        #div = self.driver.find_element('xpath', '//div[@class="CenterAlign D(f) Fxd(r) W(100%) Px(8px) Pos(a) Iso(i)"]')
-        #buttons = div.find_elements(By.XPATH, '*')
-        #photos_number = len(buttons) - 1
-        #print(photos_number)
-
-        users_path = "data/users.json"
-
-        #for i in range(photos_number):
-
         ts = get_current_timestamp()
-        img_element = self.driver.find_element('xpath', '//div[@class="profileCard__slider__img Z(-1)"]')
-        style = img_element.get_attribute('style')
-        positions = [pos for pos, char in enumerate(style) if char == '"']
-        img_name = "data/photos1/" + ts + ".png"
-        img_source = str(style)[positions[0] + 1:positions[1]]
-        urllib.request.urlretrieve(img_source, img_name)
 
-        #doc.send_keys(Keys.SPACE)
+        try:
+            img_element = self.driver.find_element('xpath', '//div[@class="profileCard__slider__img Z(-1)"]')
+            style = img_element.get_attribute('style')
+            positions = [pos for pos, char in enumerate(style) if char == '"']
+            img_name = "data/final_test_photos/" + ts + ".png"
+            img_source = str(style)[positions[0] + 1:positions[1]]
+            urllib.request.urlretrieve(img_source, img_name)
+        except:
+            print("couldnt find photo")
 
-
+        doc.send_keys(Keys.SPACE)
 
         # USER NAME
 
@@ -228,11 +204,10 @@ class TinderBot():
         except:
             user_km = "null"
 
-
         #USER VERIFICATION CHECK
 
         try:
-            user_verified_element = self.driver.find_element('xpath', '//div[@class="D(ib) Lh(0) Sq(30px) Mstart(4px) As(c)"]')
+            _ = self.driver.find_element('xpath', '//div[@class="D(ib) Lh(0) Sq(30px) Mstart(4px) As(c)"]')
             user_verified = "yes"
         except:
             user_verified = "no"
@@ -242,7 +217,6 @@ class TinderBot():
         try:
             user_location_element = self.driver.find_element(By.XPATH, '//div[contains(text(), "Mieszka w")]')
             user_location = unicodedata.normalize('NFKD',user_location_element.text[10:].replace("ł", "l").replace("Ł","L")).encode('ascii', 'ignore').decode('utf-8')
-
         except:
             user_location = "null"
 
@@ -267,27 +241,27 @@ class TinderBot():
         # USER DRINKING HABIT
 
         try:
-            user_drinking_element = self.driver.find_element(By.XPATH, '//div[contains(text(), "To nie dla mnie")]')
+            _ = self.driver.find_element(By.XPATH, '//div[contains(text(), "To nie dla mnie")]')
             user_drinking = "no"
         except:
             try:
-                user_drinking_element = self.driver.find_element(By.XPATH, '//div[contains(text(), "Już nie piję")]')
+                _ = self.driver.find_element(By.XPATH, '//div[contains(text(), "Już nie piję")]')
                 user_drinking = "no"
             except:
                 try:
-                    user_drinking_element = self.driver.find_element(By.XPATH, '//div[contains(text(), "Próbuję ograniczać")]')
+                    _ = self.driver.find_element(By.XPATH, '//div[contains(text(), "Próbuję ograniczać")]')
                     user_drinking = "sometimes"
                 except:
                     try:
-                        user_drinking_element = self.driver.find_element(By.XPATH, '//div[contains(text(), "Tylko okazjonalnie")]')
+                        _ = self.driver.find_element(By.XPATH, '//div[contains(text(), "Tylko okazjonalnie")]')
                         user_drinking = "sometimes"
                     except:
                         try:
-                            user_drinking_element = self.driver.find_element(By.XPATH, '//div[contains(text(), "Towarzysko w weekendy")]')
+                            _ = self.driver.find_element(By.XPATH, '//div[contains(text(), "Towarzysko w weekendy")]')
                             user_drinking = "sometimes"
                         except:
                             try:
-                                user_drinking_element = self.driver.find_element(By.XPATH, '//div[contains(text(), "Prawie co wieczór")]')
+                                _ = self.driver.find_element(By.XPATH, '//div[contains(text(), "Prawie co wieczór")]')
                                 user_drinking = "a lot"
                             except:
                                 user_drinking = "null"
@@ -330,7 +304,7 @@ class TinderBot():
             user_interests = user_interest_element4.find_elements(By.XPATH, '*')
             user_interests_number = len(user_interests)
             user_interest_list = [unicodedata.normalize('NFKD', interest.text.replace("ł", "l").replace("Ł", "L")).encode('ascii', 'ignore').decode('utf-8') for interest in user_interests]
-            for _ in range(5-user_interests_number):
+            for _ in range(5 - user_interests_number):
                 user_interest_list.append("null")
 
             user_interest1 = user_interest_list[0]
@@ -373,31 +347,24 @@ class TinderBot():
 
         sleep(1)
 
-
-
-
-
     def auto_swipe(self):
         while True:
             sleep(2)
             try:
                 self.right_swipe()
             except:
-                self.close_match()
+                print("couldn't swipe right")
 
 
 if __name__ == "__main__":
     bot = TinderBot()
     bot.open_tinder()
-    counter=0
-    # bot.left_swipe()
-    #sleep(400)
+    counter = 0
+
     for i in range(6):
         bot.left_swipe()
-        counter+=1
-        print(counter)
+
     bot.close_tinder_on_desktop()
-    while (True):
+
+    while True:
         bot.left_swipe()
-        counter += 1
-        print(counter)
