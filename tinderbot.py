@@ -199,11 +199,8 @@ class TinderBot:
         doc = self.driver.find_element('xpath', '//*[@id="Tinder"]/body')
         doc.send_keys(Keys.ARROW_RIGHT)
 
-    def left_swipe(self):
-        doc = self.driver.find_element('xpath', '//*[@id="Tinder"]/body')
-        doc.send_keys(Keys.ARROW_UP)
-        ts = get_current_timestamp()
 
+    def gather_photo(self, ts):
         try:
             img_element = WebDriverWait(self.driver, 2).until(
                 EC.presence_of_element_located((By.XPATH, '//div[@class="profileCard__slider__img Z(-1)"]')))
@@ -220,10 +217,7 @@ class TinderBot:
                 print(e)
             print("couldnt find photo")
 
-        doc.send_keys(Keys.SPACE)
-
-        # USER NAME
-
+    def gather_user_name(self):
         try:
             user_name_element = self.driver.find_element('xpath', '//div[@class="Ov(h) Ws(nw) Ell"]')
             user_name = unicodedata.normalize('NFKD',
@@ -231,63 +225,54 @@ class TinderBot:
                 'ascii', 'ignore').decode('utf-8')
         except:
             user_name = "null"
+        return user_name
 
-        # USER AGE
-
+    def gather_user_age(self):
         try:
             user_age_element = self.driver.find_element('xpath', '//span[@class="Whs(nw) Typs(display-2-strong)"]')
             user_age = user_age_element.text
         except:
             user_age = "null"
+        return user_age
 
-        # USER KILOMETERS AWAY
-
+    def gather_user_km(self):
         try:
-            user_km_element = self.driver.find_element(By.XPATH, '//div[contains(text(), "kilometr")]')
+            user_km_element = self.driver.find_element('xpath', '//div[contains(text(), "kilometr")]')
             if user_km_element.text.split(" ")[0].isnumeric():
                 user_km = user_km_element.text.split(" ")[0]
             else:
                 user_km = "0"
         except:
             user_km = "null"
+        return user_km
 
-        # USER VERIFICATION CHECK
-
+    def gather_user_verified(self):
         try:
-            _ = self.driver.find_element('xpath', '//div[@class="D(ib) Lh(0) Sq(30px) Mstart(4px) As(c)"]')
-            user_verified = "yes"
+            user_verified_element = self.driver.find_element('xpath', '//div[contains(text(), "weryfikacja")]')
+            user_verified = user_verified_element.text
         except:
-            user_verified = "no"
+            user_verified = "null"
+        return user_verified
 
-        # USER LOCATION
-
+    def gather_user_location(self):
         try:
-            user_location_element = self.driver.find_element(By.XPATH, '//div[contains(text(), "Mieszka w")]')
+            user_location_element = self.driver.find_element('xpath', '//div[contains(text(), "Mieszka w")]')
             user_location = unicodedata.normalize('NFKD', user_location_element.text[10:].replace("ł", "l").replace("Ł",
                                                                                                                     "L")).encode(
                 'ascii', 'ignore').decode('utf-8')
         except:
             user_location = "null"
+        return user_location
 
-        # USER SMOKING HABIT
-
+    def gather_user_smoking(self):
         try:
-            user_smoking_element = self.driver.find_element(By.XPATH,
-                                                            '//div[contains(text(), "alę") or contains(text(), '
-                                                            '"Próbuję rzucić")]')
-            switch = {
-                "Nie palę": "don't smoke",
-                "Palę": "smoke",
-                "Palę tylko dla towarzystwa": "smoke for company",
-                "Palę do alkoholu": "smoke while drinking",
-                "Próbuję rzucić": "trying to quit smoking"
-            }
-            user_smoking = switch.get(user_smoking_element.text, "null")
+            user_smoking_element = self.driver.find_element('xpath', '//div[contains(text(), "alę")]')
+            user_smoking = user_smoking_element.text
         except:
             user_smoking = "null"
+        return user_smoking
 
-        # USER DRINKING HABIT
-
+    def gather_user_drinking(self):
         xpaths = [
             ('//div[contains(text(), "To nie dla mnie")]', "no"),
             ('//div[contains(text(), "Już nie piję")]', "no"),
@@ -296,7 +281,6 @@ class TinderBot:
             ('//div[contains(text(), "Towarzysko w weekendy")]', "sometimes"),
             ('//div[contains(text(), "Prawie co wieczór")]', "a lot")
         ]
-
         user_drinking = "null"
         for xpath, value in xpaths:
             try:
@@ -305,12 +289,11 @@ class TinderBot:
                 break
             except:
                 continue
+        return user_drinking
 
-        # USER KID STATUS
-
+    def gather_user_kid(self):
         try:
             user_kid_element = self.driver.find_element(By.XPATH, '//div[contains(text(), "dzieci")]')
-
             switch = {
                 "Chcę mieć dzieci": "don't have kids",
                 "Nie chcę mieć dzieci": "don't have kids",
@@ -318,25 +301,25 @@ class TinderBot:
                 "Mam dzieci, nie chcę więcej": "have kids",
             }
             user_kid = switch.get(user_kid_element.text, "null")
-
         except:
             user_kid = "null"
+        return user_kid
 
-        # USER DESCRIPTION
-
+    def gather_user_description(self):
         try:
             user_description_element = self.driver.find_element('xpath',
-            '//div[@class="react-aspect-ratio-placeholder"]').find_element('xpath',
-            '..').find_elements(By.XPATH, '*')[1].find_elements(By.XPATH,
-            '*')[2].find_elements(By.XPATH, '*')[0].text
+                                                                '//div[@class="react-aspect-ratio-placeholder"]').find_element(
+                'xpath',
+                '..').find_elements(By.XPATH, '*')[1].find_elements(By.XPATH,
+                                                                    '*')[2].find_elements(By.XPATH, '*')[0].text
             user_description = unicodedata.normalize('NFKD', remove_emojis(user_description_element)
                                                      .replace("ł", "l").replace("Ł", "L")
                                                      .replace("\n", " ")).encode('ascii', 'ignore').decode('utf-8')
         except:
             user_description = "null"
+        return user_description
 
-        # USER INTERESTS
-
+    def gather_user_interests(self):
         try:
             user_interest_element = self.driver.find_element('xpath', "//h2[text()='Zainteresowania']").find_element(
                 'xpath', '..')
@@ -351,6 +334,24 @@ class TinderBot:
             user_interest_list += ["null"] * (5 - len(user_interest_list))
         except:
             user_interest_list = ["null"] * 5
+        return user_interest_list
+
+    def left_swipe(self):
+        doc = self.driver.find_element('xpath', '//*[@id="Tinder"]/body')
+        doc.send_keys(Keys.ARROW_UP)
+        ts = get_current_timestamp()
+        self.gather_photo(ts)
+        doc.send_keys(Keys.SPACE)
+        user_name = self.gather_user_name()
+        user_age = self.gather_user_age()
+        user_km = self.gather_user_km()
+        user_verified = self.gather_user_verified()
+        user_location = self.gather_user_location()
+        user_smoking = self.gather_user_smoking()
+        user_drinking = self.gather_user_drinking()
+        user_kid = self.gather_user_kid()
+        user_description = self.gather_user_description()
+        user_interest_list = self.gather_user_interests()
 
         with open(user_data_json_path) as fp:
             users_list = json.load(fp)
